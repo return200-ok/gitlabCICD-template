@@ -1,0 +1,15 @@
+template_sonar:
+  stage: sonarqube
+  image: sonarsource/sonar-scanner-cli
+  script:
+    - sonar-scanner -Dproject.settings=sonar.properties -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.qualitygate.wait=true -Dsonar.branch.name=${CI_COMMIT_REF_NAME}
+  only:
+    - branches
+
+template_merge_request:
+  stage: sonarqube
+  image: sonarsource/sonar-scanner-cli
+  script:
+    - sonar-scanner -Dproject.settings=sonar.properties -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.qualitygate.wait=true -Dsonar.pullrequest.branch=${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} -Dsonar.pullrequest.base=${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} -Dsonar.pullrequest.key=${CI_MERGE_REQUEST_ID} -Dsonar.pullrequest.gitlab.projectId=${CI_MERGE_REQUEST_PROJECT_PATH} -Dsonar.gitlab.commit_sha=${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA} -Dsonar.gitlab.ref_name=${CI_COMMIT_REF_NAME}
+  only:
+    - merge_request
