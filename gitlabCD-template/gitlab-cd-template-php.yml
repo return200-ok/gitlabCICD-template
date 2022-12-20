@@ -1,0 +1,41 @@
+deploy k8s develop:
+  stage: deployk8s
+  #retry: 2
+  image: docker..vn/base-image/kubectl-dev
+  script:
+    - echo '10.130.41.93 k8s-dev..vn' >> /etc/hosts
+    - bash ci/version.sh
+    - VERSION="$(cat VERSION.info)"
+    - IMAGE_FULL="${DOCKER_REGISTRY_URL}/${GROUP_ID}/${PROJECT_NAME}:${VERSION}"
+    - VERSION_BRANCH=`echo ${CI_COMMIT_REF_NAME}| sed "s|/|-|g"`
+    - IMAGE_DEPLOY="${IMAGE_FULL}-origin-${VERSION_BRANCH}"
+    - DEPLOY_NAME="deploy-${GROUP_ID}-${PROJECT_NAME}"
+    - git clone git@git..vn:sysadmins/jenkins-scripts.git
+    - cd jenkins-scripts
+    - git clone git@git..vn:sysadmins/k8s-files.git
+    - mv k8s-files k8s-manifest
+    - ./deploy_k8s.sh ${DEPLOY_NAME}-dev $IMAGE_DEPLOY $GITLAB_USER_LOGIN
+  #when: manual
+  except:
+    refs:
+      - master
+
+deploy k8s prod:
+  stage: deployk8s
+  #retry: 2
+  image: docker..vn/base-image/kubectl-prod
+  script:
+    - echo '10.130.55.133 k8s..vn' >> /etc/hosts
+    - bash ci/version.sh
+    - VERSION="$(cat VERSION.info)"
+    - IMAGE_FULL="${DOCKER_REGISTRY_URL}/${GROUP_ID}/${PROJECT_NAME}:${VERSION}"
+    - IMAGE_DEPLOY="${IMAGE_FULL}"
+    - git clone git@git..vn:sysadmins/jenkins-scripts.git
+    - cd jenkins-scripts
+    - git clone git@git..vn:sysadmins/k8s-files.git
+    - mv k8s-files k8s-manifest
+    - ./deploy_k8s.sh ${DEPLOY_NAME}-prod $IMAGE_DEPLOY $GITLAB_USER_LOGIN
+  when: manual
+  only:
+    refs:
+      - master
