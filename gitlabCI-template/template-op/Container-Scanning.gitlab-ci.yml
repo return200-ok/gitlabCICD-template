@@ -1,0 +1,13 @@
+container_scanning:
+  image: registry.gitlab.com/security-products/container-scanning:4
+  stage: scancontainer
+  variables:
+    GIT_STRATEGY: none
+  allow_failure: true
+  artifacts:
+    reports:
+      container_scanning: gl-container-scanning-report.json
+    paths: [gl-container-scanning-report.json]
+  dependencies: []
+  script:
+    - gtcs scan
