@@ -1,0 +1,39 @@
+# Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/sast/
+#
+# Configure SAST with CI/CD variables (https://docs.gitlab.com/ee/ci/variables/index.html).
+# List of available variables: https://docs.gitlab.com/ee/user/application_security/sast/index.html#available-variables
+
+variables:
+  # Setting this variable will affect all Security templates
+  # (SAST, Dependency Scanning, ...)extendsextends
+  SECURE_ANALYZERS_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
+
+  SAST_EXCLUDED_ANALYZERS: ""
+  SAST_EXCLUDED_PATHS: "spec, test, tests, tmp"
+  SCAN_KUBERNETES_MANIFESTS: "false"
+
+
+  # `rules` must be overridden explicitly by each child job
+  # see https://gitlab.com/gitlab-org/gitlab/-/issues/218444
+
+
+
+eslint-sast:
+  stage: test
+  image:
+    name: "$SAST_ANALYZER_IMAGE"
+  variables:
+    SAST_ANALYZER_IMAGE_TAG: 2
+    SAST_ANALYZER_IMAGE: "$SECURE_ANALYZERS_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
+  script:
+    - /analyzer run
+  
+phpcs-security-audit-sast:
+  stage: test
+  image:
+    name: "$SAST_ANALYZER_IMAGE"
+  variables:
+    SAST_ANALYZER_IMAGE_TAG: 2
+    SAST_ANALYZER_IMAGE: "$SECURE_ANALYZERS_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
+  script:
+    - /analyzer run

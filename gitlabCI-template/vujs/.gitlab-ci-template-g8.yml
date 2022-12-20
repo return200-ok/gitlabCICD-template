@@ -1,0 +1,36 @@
+image: docker..vn/addrop/node:lts-alpine
+
+variables:
+  IMAGE_NAME: "${DOCKER_REGISTRY_URL}/${GROUP_ID}/${CI_PROJECT_NAME}:$CI_COMMIT_TAG"
+  GROUP_ID: "cpo"
+  DEPLOY_NAME: "deploy-${GROUP_ID}-${CI_PROJECT_NAME}"
+
+before_script:
+  #- export APP_VERSION=$(grep -oE "APP_VERSION=([0-9\.])+" .env.production | grep -oE "[0-9]+\.[0-9]+\.[0-9]+")
+  - echo "waytosuccess !!!"
+stages:
+  - dockerize
+  - deployk8s
+
+# codestyle:
+#   stage: checkinstall
+#   script:
+#     - npm install
+#   dependencies: []
+#   allow_failure: true
+#   tags:
+#     - x10-01
+
+dockerize:
+  stage: dockerize
+  image: docker..vn/base-image/docker:18.06.3-dind
+  script:
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL
+    - docker build -f deploy-ci/Dockerfile -t ${IMAGE_NAME} .
+    - docker push ${IMAGE_NAME}
+    - echo "DEPLOY_NAME:" $DEPLOY_NAME
+    - echo "IMAGE_NAME:" $IMAGE_NAME 
+  tags:
+    - x10-01
+  only:
+    - tags
