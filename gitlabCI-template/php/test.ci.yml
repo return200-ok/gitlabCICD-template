@@ -1,0 +1,11 @@
+template_test:
+  stage: test
+  image: docker..vn/base-image/php:7.4-fpm
+  script:
+    - composer install
+    - composer require --dev phpunit/php-code-coverage:4.0.8
+    - php vendor/bin/phpunit --coverage-text --colors=never
+  coverage: '/Lines\s+:\s(\d+.?\d+)%/'
+  artifacts:
+    paths:
+      - reports/coverage
