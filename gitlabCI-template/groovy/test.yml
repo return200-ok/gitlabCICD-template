@@ -1,0 +1,9 @@
+template_test:
+  stage: test
+  script:
+    - echo $MIN_COVERAGE
+    - ./gradlew -Dorg.gradle.project.min_coverage=$MIN_COVERAGE test :jacocoTestReport :printCoverage :jacocoTestCoverageVerification
+  coverage: '/^Coverage:\s(\d+\.\d+%)/'
+  artifacts:
+    paths:
+      - build/reports/
