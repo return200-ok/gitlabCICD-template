@@ -1,0 +1,37 @@
+build-app:
+    stage: build
+    tags:
+        - runner-macos-01
+    script:
+        # Archive app
+        # EX: xcodebuild -project XCConfig\ Signing.xcodeproj -scheme "XCConfig Signing" -archivePath out/myapp.xcarchive archive
+        - xcodebuild -project <your-project-name>.xcodeproj -scheme <scheme name> -archivePath <path/to/your/app>.xcarchive archive
+        # Export archive to ipa
+        # EX: xcodebuild -exportArchive -archivePath out/myapp.xcarchive -exportPath out -exportOptionsPlist export.plist
+        - xcodebuild -exportArchive -archivePath <path/to/your/app>.xcarchive -exportPath <path/to/ipa/output/folder> -exportOptionsPlist <path/to/ExportOptions>.plist
+
+push-app:
+    stage: delivery
+    tags:
+        - runner-macos-01
+    image: firebase-tools
+    variables:
+        GIT_STRATEGY: none
+        APP_ID: 1:1324546846:ios:134654684654
+        BUILD_OUTPUT: $CI_PROJECT_DIR/build/ios/ipa/*.ipa
+        RELEASE_NOTE: "Build number $CI_PIPELINE_ID"
+        FIREBASE_TOKEN: "1//0eMQJ..."
+        GROUPS_NOTIFIY: ios-team
+    script:
+        - |
+            firebase appdistribution:distribute $BUILD_OUTPUT  \
+            --debug \
+            --app $APP_ID  \
+            --groups "$GROUPS_NOTIFIY" \
+            --token "$FIREBASE_TOKEN" \
+            --release-notes "$RELEASE_NOTE"
+        - $CI_PROJECT_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols -gsp $IOS_MAP_FILE -p ios $CI_PROJECT_DIR/build/ios/archive/Runner.xcarchive/dSYMs
+    dependencies:
+        - build-app
+    needs:
+        - build-app
