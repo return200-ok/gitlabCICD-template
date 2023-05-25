@@ -59,3 +59,24 @@ when you using `CI_COMMIT_REF_NAME` and have merge request it will create twice 
 - if: $CI_COMMIT_REF_NAME == "development"
 ```
 Instead, using `CI_COMMIT_BRANCH` or `CI_COMMIT_TAG`
+
+
+# Build manual on specific branch
+```
+.test_rules:
+    rules:
+        - if: $CI_COMMIT_BRANCH == "dev"
+          variables:
+              ENV: dev
+        - if: $CI_COMMIT_BRANCH == "prod"
+          variables:
+              ENV: prod
+          when: manual
+build:
+    stage: build
+    extends: .test_rules
+    script:
+      - echo $ENV
+stages:
+    - build
+```
