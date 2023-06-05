@@ -80,3 +80,21 @@ build:
 stages:
     - build
 ```
+# Schedule pipelines
+Example:
+```
+.my-job-template:
+  script:
+    - echo "Hello from template"
+
+Manual MyJob:
+  extends: .my-job-template
+  when: manual
+  except:
+    - schedules
+
+Scheduled MyJob:
+  extends: .my-job-template
+  only:
+    - schedules
+```
