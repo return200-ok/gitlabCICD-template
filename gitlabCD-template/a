@@ -1,0 +1,31 @@
+pipeline {
+    agent {
+        label 'dc2d-fnb-ops-control-01 && development'
+    }
+
+    environment {
+        serviceName = "api_partner"
+        buildTags = "${VERSION ?: BRANCH}"
+    }
+
+    stages {
+        stage('Deploy') {
+            steps {
+                dir("$WORKSPACE") {
+                    ansiColor('xterm') {
+                        ansiblePlaybook( 
+                            installation: 'ansbile-development',
+                            playbook: '/playbooks/application/${serviceName}.yml',
+                            // tags: '${ACTIONS}',
+                            inventory: '/inventory/hosts.yml', 
+                            colorized: true,
+                            extras: '-e ${serviceName}_deploy_version="${buildTags}"',
+                            forks: 2,
+                            limit: '${SERVERS}'
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

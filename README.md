@@ -98,3 +98,27 @@ Scheduled MyJob:
   only:
     - schedules
 ```
+
+# Run jobs only when files in a specific directory have changed
+example:
+```
+docker build:
+  script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
+  only:
+    changes:
+      - Dockerfile
+      - docker/scripts/*
+      - dockerfiles/**/*
+      - more_scripts/*.{rb,py,sh}
+```
+or
+```
+rules:
+    - changes:
+      - package.json
+      - yarn.lock
+    - exists: 
+      - node_modules
+      when: never
+    - when: always
+```
