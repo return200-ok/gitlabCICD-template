@@ -122,3 +122,30 @@ rules:
       when: never
     - when: always
 ```
+
+# Run job with specific schedule
+
+```
+stages:
+    - debug
+
+job_X:
+  stage: debug
+  script:
+    - printenv
+  tags: 
+    - runner-4-test
+  only:
+    variables:
+      - $SCHEDULE_JOB_KEY == "job-x"
+
+job_Y:
+  stage: debug
+  script:
+    - printenv
+  tags: 
+    - runner-4-test
+  only:
+    variables:
+      - $SCHEDULE_JOB_KEY == "job-y"
+```
