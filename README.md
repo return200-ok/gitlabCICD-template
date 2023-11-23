@@ -149,3 +149,31 @@ job_Y:
     variables:
       - $SCHEDULE_JOB_KEY == "job-y"
 ```
+
+# Run job when it is triggered from other pipeline
+```
+rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline"
+```
+
+# Run job when an other specific job in earlier stages success
+`job_B` will only run if `job_A` is successful. If `job_A` fails, GitLab CI will mark `job_B` as a failed job without running its script. If `job_A` succeeds, `job_B` will be triggered, and its script will be executed.
+
+```
+stages:
+  - build
+  - test
+
+job_A:
+  stage: build
+  script:
+    - echo "Job A script"
+
+job_B:
+  stage: test
+  script:
+    - echo "Job B script"
+  needs:
+    - job: job_A
+      artifacts: true
+```
